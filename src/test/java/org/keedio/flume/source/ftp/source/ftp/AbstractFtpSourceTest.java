@@ -39,7 +39,7 @@ public abstract class AbstractFtpSourceTest extends EmbeddedFTPServer{
     String getFolder = System.getProperty("java.io.tmpdir");
     String getAbsoutePath = System.getProperty("java.io.tmpdir") + "/" + getFileName;
     String getSource = "ftp";
-    
+    String getRenamedSuffix = ".completed";
     
 
     @BeforeMethod
@@ -57,7 +57,7 @@ public abstract class AbstractFtpSourceTest extends EmbeddedFTPServer{
         when(mockContext.getString("file.name", "default_file_track_status.ser")).thenReturn("hasmapFTP.ser");
         when(mockContext.getString("folder", System.getProperty("java.io.tmpdir"))).thenReturn(System.getProperty("java.io.tmpdir"));
         when(mockContext.getInteger("chunk.size", 1024)).thenReturn(1024);
-       
+        when(mockContext.getString("renamed.suffix")).thenReturn(getRenamedSuffix);
         
 
         logger.info("Creating FTP source");
@@ -84,7 +84,9 @@ public abstract class AbstractFtpSourceTest extends EmbeddedFTPServer{
             logger.info("Stopping FTP source");
             ftpSource.stop();
 
-            Paths.get("hasmapFTP.ser").toFile().delete();
+            Paths.get(ftpSource.getKeedioSource().getFolder() + "/" +
+            		ftpSource.getKeedioSource().getFileName()
+            		).toFile().delete();
         } catch (Throwable e) {
             e.printStackTrace();
         }

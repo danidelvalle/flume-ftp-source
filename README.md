@@ -1,5 +1,6 @@
 Flume-ftp-source
 ================
+
 A network server on port 21 (FTP) will be source of events for Apache-flume. Files in main directory's server will be discovered and proccessed. The source is implemented as pollable source in terms of Flume, as the polling time is configurable in the main configuration of flume's file.
 In main flume's agent configuration file must be specified if security for FTP is required. There are two kind of protocol security supported by the plugin:
 
@@ -13,6 +14,12 @@ Files can be proccesed int two ways:
 
 Proccesed files's name and size will be tracked into a Map, this one will be "saved" into an external file (file.name),
 located in parameter .folder of the config.
+
+
+### Additions from keedio/flume-ftp-source
+
+- `renamed.suffix` - If configured, this suffix will be removed before processing a file. This is useful when you have to deal with files which may be renamed by an external task. Basically, `foo.bar` and `foo.bar.suffix` would be considered the same file.
+
 
 ### Requirements ######
 

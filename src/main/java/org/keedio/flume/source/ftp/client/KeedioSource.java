@@ -109,8 +109,25 @@ public abstract class KeedioSource<T> {
      *
      */
     protected Integer chunkSize;     
-   
+    
     /**
+     * 
+     */
+    protected String renamedSuffix;
+   
+    public String getRenamedSuffix() {
+		return renamedSuffix;
+	}
+
+	public void setRenamedSuffix(String renamedSuffix) {
+		this.renamedSuffix = renamedSuffix;
+	}
+	
+	public boolean checkRenamedSuffix() {
+		return this.renamedSuffix!=null;
+	}
+
+	/**
      *
      * @return
      */
@@ -249,6 +266,8 @@ public abstract class KeedioSource<T> {
     public void cleanList() {
         for (Iterator<String> iter = this.getFileList().keySet().iterator(); iter.hasNext();) {
             final String filename = iter.next();
+            
+            // existFileList - files detected in the server
             if (!(existFileList.contains(filename))) {
                 iter.remove();
             }
