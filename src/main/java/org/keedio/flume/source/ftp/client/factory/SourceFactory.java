@@ -11,6 +11,8 @@ import org.keedio.flume.source.ftp.client.sources.SFTPSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Multiset.Entry;
+
 /**
  *
  * @author Luis Lázaro lalazaro@keedio.com Keedio
@@ -90,6 +92,7 @@ public class SourceFactory {
         keedioSource.setFileName(context.getString("file.name", FILENAME_DEFAULT));
         keedioSource.setFlushLines(context.getBoolean("flushlines", FLUSHLINE_DEFAULT));
         keedioSource.setChunkSize(context.getInteger("chunk.size", CHUNKSIZE_DEFAULT));
+        keedioSource.setRenamedSuffix(context.getString("renamed.suffix"));
     }
 
    

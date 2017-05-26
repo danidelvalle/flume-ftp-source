@@ -40,7 +40,8 @@ import org.apache.flume.source.AbstractSource;
 public class Source extends AbstractSource implements Configurable, PollableSource {
 
     private SourceFactory sourceFactory = new SourceFactory();
-    private KeedioSource keedioSource;
+    @SuppressWarnings("rawtypes")
+	private KeedioSource keedioSource;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Source.class);
     private static final short ATTEMPTS_MAX = 3; //  max limit attempts reconnection
@@ -56,7 +57,8 @@ public class Source extends AbstractSource implements Configurable, PollableSour
      * @param context
      * @return KeedioSource
      */
-    public KeedioSource orderKeedioSource(Context context) {
+    @SuppressWarnings("rawtypes")
+	public KeedioSource orderKeedioSource(Context context) {
         keedioSource = sourceFactory.createKeedioSource(context);
         return keedioSource;
     }
@@ -160,7 +162,8 @@ public class Source extends AbstractSource implements Configurable, PollableSour
      * @throws IOException
      */
     // @SuppressWarnings("UnnecessaryContinue")
-    public <T> void discoverElements(KeedioSource keedioSource, String parentDir, String currentDir, int level) throws IOException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T> void discoverElements(KeedioSource keedioSource, String parentDir, String currentDir, int level) throws IOException {
 
         long position = 0L;
 
@@ -172,6 +175,7 @@ public class Source extends AbstractSource implements Configurable, PollableSour
         if (!(list.isEmpty())) {
 
             for (T element : list) {
+            	
                 String elementName = keedioSource.getObjectName(element);
                 if (elementName.equals(".") || elementName.equals("..")) {
                     continue;
@@ -181,10 +185,23 @@ public class Source extends AbstractSource implements Configurable, PollableSour
                     LOGGER.info("[" + elementName + "]");
                     keedioSource.changeToDirectory(parentDir);
                     discoverElements(keedioSource, dirToList, elementName, level + 1);
-
-                } else if (keedioSource.isFile(element)) { //element is a regular file
+                } 
+                
+                else if (keedioSource.isFile(element)) { //element is a regular file
                     keedioSource.changeToDirectory(dirToList);
-                    keedioSource.getExistFileList().add(dirToList + "/" + elementName);  //control of deleted files in server  
+                    
+                    // check if we have to deal with renamed files with a suffix which should be omitted
+                    if (keedioSource.checkRenamedSuffix() && elementName.endsWith(keedioSource.getRenamedSuffix())){
+                    	// modify the file name to 
+                    	String newElementName = elementName.substring(0, elementName.length() - keedioSource.getRenamedSuffix().length() );
+                    	
+                    	// log each renamed file only the first time
+                    	LOGGER.debug("Renamed: " + elementName + " to " + newElementName);
+
+                    	elementName = newElementName;
+                    }
+                    
+                    keedioSource.getExistFileList().add(dirToList + "/" + elementName);  //control of deleted files in server 
 
                     //test if file is new in collection
                     if (!(keedioSource.getFileList().containsKey(dirToList + "/" + elementName))) { //new file
@@ -360,7 +377,8 @@ public class Source extends AbstractSource implements Configurable, PollableSour
     /**
      * @return KeedioSource
      */
-    public KeedioSource getKeedioSource() {
+    @SuppressWarnings("rawtypes")
+	public KeedioSource getKeedioSource() {
         return keedioSource;
     }
 

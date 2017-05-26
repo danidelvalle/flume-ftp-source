@@ -1,7 +1,12 @@
 package org.keedio.flume.source.ftp.source.ftp;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
@@ -31,6 +36,47 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
 
     static {
         logger.info("homeDir: " + EmbeddedFTPServer.homeDirectory.toFile().getAbsolutePath());
+    }
+    
+    @Test
+    public void testIgnoreSuffixFile() {
+    	String filename1 = EmbeddedFTPServer.homeDirectory + "/test_a.txt";
+    	Path file1 = Paths.get(filename1);
+    	String filename2 = EmbeddedFTPServer.homeDirectory 
+     			+ "/test_b.txt"
+     			+ ftpSource.getKeedioSource().getRenamedSuffix();
+        Path file2 = Paths.get(filename2);
+        
+        try {
+        	// Create a file using the renamed suffix
+        	
+        	PrintWriter writer = new PrintWriter(filename1,"UTF-8");
+            writer.println("The first line");
+            writer.println("The second line");
+            writer.close();
+            
+            // Create a file using the renamed suffix
+        	writer = new PrintWriter(filename2, "UTF-8");
+            writer.println("The first line");
+            writer.println("The second line");
+            writer.println("The third line");
+            writer.close();
+        	
+            PollableSource.Status proc = ftpSource.process();
+            Assert.assertEquals(PollableSource.Status.READY, proc);
+            Assert.assertEquals(ftpSourceCounter.getFilesCount(), 2);
+            Assert.assertEquals(ftpSourceCounter.getFilesProcCount(), 2);
+            Assert.assertEquals(ftpSourceCounter.getFilesProcCountError(), 0);
+        } catch (EventDeliveryException e) {
+            Assert.fail();
+        } catch (FileNotFoundException e) {
+        	Assert.fail();
+		} catch (UnsupportedEncodingException e) {
+			Assert.fail();
+		}finally {
+            cleanup( file1 );
+            cleanup( file2 );
+        }
     }
 
     @Test
@@ -115,7 +161,13 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
      */
     @Test(dependsOnMethods = "testProcessMultipleFiles0")
     public void testProcessNoPermission() {
+    	// Only if the OS is POSIX compliant
+    	if (!FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+    		return;
+    	}
+    		
         Path tmpFile0 = null;
+        
         try {
             tmpFile0 = TestFileUtils.createTmpFile(EmbeddedFTPServer.homeDirectory);
             Files.setPosixFilePermissions(tmpFile0,
@@ -126,6 +178,7 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
             Assert.assertEquals(ftpSourceCounter.getFilesCount(), 1);
             Assert.assertEquals(ftpSourceCounter.getFilesProcCount(), 0);
             Assert.assertEquals(ftpSourceCounter.getFilesProcCountError(), 1);
+        	
         } catch (IOException|EventDeliveryException e) {
             Assert.fail();
         } finally {
@@ -151,7 +204,7 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
             Map<String, Long> map = ftpSource.getKeedioSource().loadMap(this.getAbsoutePath);
             String filename = "//"+tmpFile0.toFile().getName();
 
-            Assert.assertEquals( Long.valueOf(map.get(filename)), Long.valueOf(81L * 100L));
+            Assert.assertEquals( Long.valueOf(map.get(filename)), Long.valueOf(82L * 100L));
         } catch (IOException|ClassNotFoundException|EventDeliveryException e) {
             logger.error("",e);
             Assert.fail();
@@ -185,7 +238,7 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
 
             String filename = "//"+tmpFile0.toFile().getName();
 
-            Assert.assertEquals(Long.valueOf(map.get(filename)), Long.valueOf(81L * 100L + 1000L * 101L));
+            Assert.assertEquals(Long.valueOf(map.get(filename)), Long.valueOf(82L * 100L + 1000L * 102L));
 
         } catch (IOException|EventDeliveryException|ClassNotFoundException e) {
             Assert.fail();
@@ -208,10 +261,11 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
                 Path tmpFile0 = TestFileUtils.createTmpFile(EmbeddedFTPServer.homeDirectory);
                 TestFileUtils.appendASCIIGarbageToFile(tmpFile0);
 
-                if (i == 8) {
+              	// Only if the OS is POSIX compliant
+            	if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix") && (i == 8) ) {	
                     Files.setPosixFilePermissions(tmpFile0,
                             new HashSet<>(Arrays.asList(PosixFilePermission.OWNER_WRITE)));
-                }
+            	}
 
                 files.add(tmpFile0);
             }
@@ -219,8 +273,15 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
             PollableSource.Status proc0 = ftpSource.process();
             Assert.assertEquals(PollableSource.Status.READY, proc0);
             Assert.assertEquals(ftpSourceCounter.getFilesCount(), totFiles);
-            Assert.assertEquals(ftpSourceCounter.getFilesProcCount(), totFiles - 1);
-            Assert.assertEquals(ftpSourceCounter.getFilesProcCountError(), 1);
+            if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+            	Assert.assertEquals(ftpSourceCounter.getFilesProcCount(), totFiles - 1);
+            	Assert.assertEquals(ftpSourceCounter.getFilesProcCountError(), 1);
+            }
+            else {
+            	Assert.assertEquals(ftpSourceCounter.getFilesProcCount(), totFiles);
+            	Assert.assertEquals(ftpSourceCounter.getFilesProcCountError(), 0);
+            }
+            
         } catch (IOException|EventDeliveryException e) {
             Assert.fail();
         } finally {
