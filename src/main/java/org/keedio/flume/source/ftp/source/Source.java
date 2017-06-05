@@ -188,8 +188,7 @@ public class Source extends AbstractSource implements Configurable, PollableSour
                 } 
                 
                 else if (keedioSource.isFile(element)) { //element is a regular file
-                    keedioSource.changeToDirectory(dirToList);
-                    
+                                        
                     // check if we have to deal with renamed files with a suffix which should be omitted
                     if (keedioSource.checkRenamedSuffix() && elementName.endsWith(keedioSource.getRenamedSuffix())){
                     	// modify the file name to 
@@ -201,14 +200,18 @@ public class Source extends AbstractSource implements Configurable, PollableSour
                     	elementName = newElementName;
                     }
                     
-                    keedioSource.getExistFileList().add(dirToList + "/" + elementName);  //control of deleted files in server 
+                    //control of deleted files in server 
+                    keedioSource.getExistFileList().add(dirToList + "/" + elementName);  
 
                     //test if file is new in collection
-                    if (!(keedioSource.getFileList().containsKey(dirToList + "/" + elementName))) { //new file
+                    if (!(keedioSource.getFileList().containsKey(dirToList + "/" + elementName))) { 
+                    	//new file
                         sourceCounter.incrementFilesCount(); //include all files, even not yet processed
                         position = 0L;
                         LOGGER.info("Discovered: " + elementName + " ,size: " + keedioSource.getObjectSize(element));
-                    } else { //known file
+                    } 
+                    else { 
+                    	//known file
                         long prevSize = (long) keedioSource.getFileList().get(dirToList + "/" + elementName);
                         position = prevSize;
                         long dif = keedioSource.getObjectSize(element) - (long) keedioSource.getFileList().get(dirToList + "/" + elementName);
@@ -226,6 +229,7 @@ public class Source extends AbstractSource implements Configurable, PollableSour
                     } //end if known file
 
                     //common for all regular files
+                    keedioSource.changeToDirectory(dirToList);
                     InputStream inputStream = null;
                     try {
                         inputStream = keedioSource.getInputStream(element);
