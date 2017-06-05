@@ -19,6 +19,7 @@ located in parameter .folder of the config.
 ### Additions from keedio/flume-ftp-source
 
 - `renamed.suffix` - If configured, this suffix will be removed before processing a file. This is useful when you have to deal with files which may be renamed by an external task. Basically, `foo.bar` and `foo.bar.suffix` would be considered the same file.
+- `control_deleted_files` - If set to `false`, then deleted files will not be deleted from the local track object. It's useful to do not re-download files is a directory listing fails. By default it's `true`.
 
 
 ### Requirements ######

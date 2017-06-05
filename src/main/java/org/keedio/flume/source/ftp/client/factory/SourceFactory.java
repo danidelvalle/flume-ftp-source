@@ -26,7 +26,7 @@ public class SourceFactory {
     private static final String FOLDER_DEFAULT = System.getProperty("java.io.tmpdir");
     private static final Integer CHUNKSIZE_DEFAULT = 1024;
     private static final String FILENAME_DEFAULT = "default_file_track_status.ser";
-    
+    private static final boolean CONTROL_DELELED_FILES = true;
 
     /**
      * Create KeedioSource
@@ -93,6 +93,7 @@ public class SourceFactory {
         keedioSource.setFlushLines(context.getBoolean("flushlines", FLUSHLINE_DEFAULT));
         keedioSource.setChunkSize(context.getInteger("chunk.size", CHUNKSIZE_DEFAULT));
         keedioSource.setRenamedSuffix(context.getString("renamed.suffix"));
+        keedioSource.setControlDeletedFiles(context.getBoolean("control_deleted_files", CONTROL_DELELED_FILES));
     }
 
    

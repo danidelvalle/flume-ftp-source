@@ -114,6 +114,8 @@ public abstract class KeedioSource<T> {
      * 
      */
     protected String renamedSuffix;
+    
+    protected boolean controlDeletedFiles;
    
     public String getRenamedSuffix() {
 		return renamedSuffix;
@@ -125,6 +127,14 @@ public abstract class KeedioSource<T> {
 	
 	public boolean checkRenamedSuffix() {
 		return this.renamedSuffix!=null;
+	}
+	
+	public void setControlDeletedFiles(boolean control) {
+		this.controlDeletedFiles = control;
+	}
+	
+	public boolean getControlDeletedFiles() {
+		return this.controlDeletedFiles;
 	}
 
 	/**

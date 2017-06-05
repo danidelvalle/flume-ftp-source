@@ -92,7 +92,11 @@ public class Source extends AbstractSource implements Configurable, PollableSour
                     + keedioSource.getFileList().size());
             
             discoverElements(keedioSource, keedioSource.getDirectoryserver(), "", 0);
-            keedioSource.cleanList(); //clean list according existing actual files
+            
+            //clean list according existing actual files
+            if(keedioSource.getControlDeletedFiles())
+            	keedioSource.cleanList();
+            
             keedioSource.getExistFileList().clear();
         } catch (IOException e) {
             LOGGER.error("Exception thrown in proccess, try to reconnect " + counterConnect, e);
