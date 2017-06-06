@@ -11,9 +11,10 @@ import org.apache.flume.channel.ChannelProcessor;
 import static org.mockito.Mockito.*;
 
 import org.keedio.flume.source.ftp.source.Source;
-import org.keedio.flume.source.ftp.metrics.SourceCounter;
 import org.keedio.flume.source.ftp.source.TestFileUtils;
 import org.keedio.flume.source.ftp.source.ftp.server.EmbeddedFTPServer;
+import org.keedio.flume.source.ftp.metrics.SourceCounter;
+
 import org.apache.log4j.Logger;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Mock;
@@ -34,7 +35,7 @@ public abstract class AbstractFtpSourceTest extends EmbeddedFTPServer{
     String getUser = "flumetest";
     String getPassword = "flumetest";
     String getHost = "localhost";
-    String getWorkingDirectory = null;
+    String getWorkingDirectory = "dir1";
     String getFileName = "hasmapFTP.ser";
     String getFolder = System.getProperty("java.io.tmpdir");
     String getAbsoutePath = System.getProperty("java.io.tmpdir") + "/" + getFileName;
@@ -59,6 +60,8 @@ public abstract class AbstractFtpSourceTest extends EmbeddedFTPServer{
         when(mockContext.getInteger("chunk.size", 1024)).thenReturn(1024);
         when(mockContext.getString("renamed.suffix")).thenReturn(getRenamedSuffix);
         
+        //when(mockContext.getBoolean("working.restricted")).thenReturn(false);
+        //when(mockContext.getBoolean("control_deleted_files")).thenReturn(false);
 
         logger.info("Creating FTP source");
 

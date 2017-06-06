@@ -79,7 +79,7 @@ public class EmbeddedFtpSourceTest extends AbstractFtpSourceTest {
         }
     }
 
-    @Test
+    @Test(dependsOnMethods = "testIgnoreSuffixFile")
     public void testProcessNoFile() {
         try {
             PollableSource.Status proc = ftpSource.process();

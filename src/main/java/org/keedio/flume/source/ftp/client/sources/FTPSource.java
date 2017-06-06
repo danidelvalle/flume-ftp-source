@@ -88,8 +88,8 @@ public class FTPSource extends KeedioSource<FTPFile> {
      * @return void
      * @param String destination
      */
-    public void changeToDirectory(String dir) throws IOException {        
-            ftpClient.changeWorkingDirectory(dir);        
+    public boolean changeToDirectory(String dir) throws IOException {        
+            return ftpClient.changeWorkingDirectory(dir);        
     }
 
     @Override

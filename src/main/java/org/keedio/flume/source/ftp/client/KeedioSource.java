@@ -89,6 +89,11 @@ public abstract class KeedioSource<T> {
      *
      */
     protected String workingDirectory; //working directory specified in config.
+    
+    /**
+     * 
+     */
+    protected boolean workingRestricted; //restrict scan to workingDirectory
 
     /**
      *
@@ -115,7 +120,12 @@ public abstract class KeedioSource<T> {
      */
     protected String renamedSuffix;
     
+    /**
+     * 
+     */
     protected boolean controlDeletedFiles;
+    
+    
    
     public String getRenamedSuffix() {
 		return renamedSuffix;
@@ -161,7 +171,7 @@ public abstract class KeedioSource<T> {
      * @param directory
      * @throws IOException
      */
-    public abstract void changeToDirectory(String directory)throws IOException;
+    public abstract boolean changeToDirectory(String directory)throws IOException;
 
     /**
      *
@@ -442,6 +452,23 @@ public abstract class KeedioSource<T> {
     public void setWorkingDirectory(String workingDirectory) {
         this.workingDirectory = workingDirectory;
     }
+    
+    /**
+     * 
+     * @return the working restricted flag
+     */
+    public boolean getWorkingRestricted() {
+    	return this.workingRestricted;
+    }
+    
+    /**
+     * 
+     * @param workingRestricted
+     */
+    public void setWorkingRestricted(boolean workingRestricted) {
+    	this.workingRestricted = workingRestricted;
+    }
+    
 
     /**
      * @return the fileList

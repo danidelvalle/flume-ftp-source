@@ -164,9 +164,10 @@ public class SFTPSource extends KeedioSource<ChannelSftp.LsEntry> {
      * @return void
      * @param String destination
      */
-    public void changeToDirectory(String directory) throws IOException {
+    public boolean changeToDirectory(String directory) throws IOException {
         try {
             sftpClient.cd(directory);
+            return true;
         } catch (SftpException e) {
             LOGGER.error("Could not change to directory " + directory, e);
             throw new IOException(e.getMessage());

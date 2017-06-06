@@ -207,7 +207,8 @@ public class KeedioSourceTest extends TestCase {
             return null;
         }
 
-        public void changeToDirectory(String directory) {
+        public boolean changeToDirectory(String directory) {
+        	return true;
         }
 
         public InputStream getInputStream(Object file) throws IOException {

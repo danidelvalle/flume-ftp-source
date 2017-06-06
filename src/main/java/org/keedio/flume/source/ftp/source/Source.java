@@ -70,6 +70,8 @@ public class Source extends AbstractSource implements Configurable, PollableSour
     @Override
     public void configure(Context context) {
         keedioSource = orderKeedioSource(context);
+        
+        // check that the local folder where to store the track metadata exists
         if (keedioSource.existFolder()) {
             keedioSource.makeLocationFile();
         } else {
@@ -86,18 +88,40 @@ public class Source extends AbstractSource implements Configurable, PollableSour
      */
     @Override
     public PollableSource.Status process() throws EventDeliveryException {
-        
+    	boolean cdResult;
+    	boolean runDiscover = true;
+    	
         try {            
-            LOGGER.info("Actual dir:  " + keedioSource.getDirectoryserver() + " files: "
-                    + keedioSource.getFileList().size());
-            
-            discoverElements(keedioSource, keedioSource.getDirectoryserver(), "", 0);
-            
-            //clean list according existing actual files
-            if(keedioSource.getControlDeletedFiles())
-            	keedioSource.cleanList();
-            
-            keedioSource.getExistFileList().clear();
+        	
+        	// check if the discover is restricted to the working directory
+        	if (keedioSource.getWorkingRestricted()) {
+        		
+        		if (!keedioSource.getDirectoryserver().equalsIgnoreCase(keedioSource.getWorkingDirectory())) {
+        			
+        			LOGGER.warn("Actual dir '" + keedioSource.getDirectoryserver() + "' is not working.directory, trying to change...");
+        			cdResult = keedioSource.changeToDirectory(keedioSource.getWorkingDirectory());
+        			if (!cdResult) {
+        				LOGGER.error("Couldn't cd to working dir '"+keedioSource.getWorkingDirectory()+"', omitting poll!!");
+        				runDiscover = false;
+        			}
+        		}
+        	}
+        	
+        	// run the discover process
+        	if (runDiscover) {
+        		LOGGER.info(""+keedioSource.getWorkingRestricted());
+        		LOGGER.info(keedioSource.getWorkingDirectory());
+	            LOGGER.info("Actual dir:  " + keedioSource.getDirectoryserver() + " files: "
+	                    + keedioSource.getFileList().size());
+	            
+	            discoverElements(keedioSource, keedioSource.getDirectoryserver(), "", 0);
+	            
+	            //clean list according existing actual files
+	            if(keedioSource.getControlDeletedFiles())
+	            	keedioSource.cleanList();
+	            
+	            keedioSource.getExistFileList().clear();
+        	}
         } catch (IOException e) {
             LOGGER.error("Exception thrown in proccess, try to reconnect " + counterConnect, e);
 
@@ -119,6 +143,7 @@ public class Source extends AbstractSource implements Configurable, PollableSour
                 }
             }
         }
+        
         keedioSource.saveMap();
 
         try {
