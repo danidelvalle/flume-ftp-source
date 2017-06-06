@@ -109,8 +109,6 @@ public class Source extends AbstractSource implements Configurable, PollableSour
         	
         	// run the discover process
         	if (runDiscover) {
-        		LOGGER.info(""+keedioSource.getWorkingRestricted());
-        		LOGGER.info(keedioSource.getWorkingDirectory());
 	            LOGGER.info("Actual dir:  " + keedioSource.getDirectoryserver() + " files: "
 	                    + keedioSource.getFileList().size());
 	            
