@@ -211,7 +211,7 @@ public class KeedioSourceTest extends TestCase {
         	return true;
         }
 
-        public InputStream getInputStream(Object file) throws IOException {
+        public InputStream getInputStream(Object file, long position) throws IOException {
             return null;
         }
 
@@ -253,6 +253,7 @@ public class KeedioSourceTest extends TestCase {
 
         public void setFileType(int fileType) throws IOException {
         }
+
     }
 
 }

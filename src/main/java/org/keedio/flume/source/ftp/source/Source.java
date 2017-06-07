@@ -90,29 +90,31 @@ public class Source extends AbstractSource implements Configurable, PollableSour
     public PollableSource.Status process() throws EventDeliveryException {
     	boolean cdResult;
     	boolean runDiscover = true;
+    	String currentDir = null;
     	
-        try {            
+        try {     
         	
         	// check if the discover is restricted to the working directory
         	if (keedioSource.getWorkingRestricted()) {
-        		
-        		if (!keedioSource.getDirectoryserver().equalsIgnoreCase(keedioSource.getWorkingDirectory())) {
-        			
-        			LOGGER.warn("Actual dir '" + keedioSource.getDirectoryserver() + "' is not working.directory, trying to change...");
-        			cdResult = keedioSource.changeToDirectory(keedioSource.getWorkingDirectory());
-        			if (!cdResult) {
-        				LOGGER.error("Couldn't cd to working dir '"+keedioSource.getWorkingDirectory()+"', omitting poll!!");
-        				runDiscover = false;
-        			}
-        		}
+    			cdResult = keedioSource.changeToDirectory(keedioSource.getWorkingDirectory());
+    			if (!cdResult) {
+    				LOGGER.error("Couldn't cd to working dir '"+keedioSource.getWorkingDirectory()+"', omitting poll!!");
+    				runDiscover = false;
+    			}
+    			else {
+    				// avoid querying the server unnecessary
+    				currentDir = keedioSource.getWorkingDirectory();
+    			}
+        	}
+        	else {
+        		currentDir = keedioSource.getDirectoryserver();
         	}
         	
         	// run the discover process
         	if (runDiscover) {
-	            LOGGER.info("Actual dir:  " + keedioSource.getDirectoryserver() + " files: "
-	                    + keedioSource.getFileList().size());
-	            
-	            discoverElements(keedioSource, keedioSource.getDirectoryserver(), "", 0);
+        		
+	            LOGGER.info("Actual dir:  " + currentDir + " files: " + keedioSource.getFileList().size());
+	            discoverElements(keedioSource, currentDir, "", 0);
 	            
 	            //clean list according existing actual files
 	            if(keedioSource.getControlDeletedFiles())
@@ -259,10 +261,11 @@ public class Source extends AbstractSource implements Configurable, PollableSour
                     keedioSource.changeToDirectory(dirToList);
                     InputStream inputStream = null;
                     try {
-                        inputStream = keedioSource.getInputStream(element);
+                        inputStream = keedioSource.getInputStream(element, position);
                         listener.fileStreamRetrieved();
 
-                        if (!readStream(inputStream, position)) {
+                        //if (!readStream(inputStream, position)) {
+                        if (!readStream(inputStream, 0)) {
                             inputStream = null;
                         }
 

@@ -195,10 +195,19 @@ public class SFTPSource extends KeedioSource<ChannelSftp.LsEntry> {
      * @param Object
      * @return InputStream
      */
-    public InputStream getInputStream(ChannelSftp.LsEntry file) throws IOException {
+    public InputStream getInputStream(ChannelSftp.LsEntry file, long position) throws IOException {
         InputStream inputStream = null;       
         try {
-            inputStream = sftpClient.get(file.getFilename());
+        	if (position > 0) {
+        		inputStream = sftpClient.get(
+        				file.getFilename(),
+        				null, // SftpProgressMonitor monitor
+        				position
+        		);
+        	}
+        	else {
+        		inputStream = sftpClient.get(file.getFilename());
+        	}
         } catch (SftpException e) {
             LOGGER.error("Error trying to retrieve inputstream", e);
             throw new IOException(e.getMessage());

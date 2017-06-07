@@ -109,14 +109,21 @@ public class FTPSource extends KeedioSource<FTPFile> {
      * @param Object
      * @return InputStream
      */
-    public InputStream getInputStream(FTPFile file) throws IOException {
+    public InputStream getInputStream(FTPFile file, long position) throws IOException {
         InputStream inputStream = null;
 
-        if (isFlushLines()) {
+        /*if (isFlushLines()) {
             this.setFileType(FTP.ASCII_FILE_TYPE);
         } else {
             this.setFileType(FTP.BINARY_FILE_TYPE);
+        }*/
+        
+        this.setFileType(FTP.BINARY_FILE_TYPE);
+        
+        if (position>0) {
+        	getFtpClient().setRestartOffset(position);
         }
+        
         inputStream = getFtpClient().retrieveFileStream(file.getName());
 
         return inputStream;

@@ -179,7 +179,7 @@ public abstract class KeedioSource<T> {
      * @return
      * @throws IOException
      */
-    public abstract InputStream getInputStream(T file ) throws IOException;
+    public abstract InputStream getInputStream(T file , long position) throws IOException;
 
     /**
      *
